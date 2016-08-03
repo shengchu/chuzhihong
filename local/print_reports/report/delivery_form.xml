@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <report
+                id="report_delivery_form"
+                model="sell.delivery"
+                string="送货单"
+                name="print_reports.report_delivery_view"
+                file="print_reports.report_delivery_form"
+                report_type="qweb-pdf">
+        </report>
+        <template id='report_delivery_view'>
+            <t t-call='report.html_container'>
+                <t t-set="data_report_margin_top" t-value="12"/>
+                <t t-set="data_report_header_spacing" t-value="9"/>
+                <t t-set="data_report_dpi" t-value="110"/>
+                <t t-set="data-report_format" t-value='A4'/>
+                <t t-foreach='docs' t-as='o'>
+                    <!--<t t-call="report.external_layout">-->
+                    <t t-call="report.internal_layout">
+                        <div class='page'>
+                            <div class='row'>
+                                <div class='oe_structure'/>
+                                <div class='row'>
+                                    <h1 class='text-center'>
+                                        <span t-field='res_company.name'/>供货合同暨结算单
+                                    </h1>
+                                </div>
+
+                            </div>
+                            <style>
+                                table.col-xs-12 td{border: 1px solid black}
+                            </style>
+                            <table class='col-xs-12'>
+                                <tbody class='text-center'>
+                                    <tr>
+                                        <td colspan='6' class="text-left">
+                                            购货单位：
+                                            <span t-field='o.partner_id.name'/>
+                                            <span t-field='o.address'/>
+                                            <span t-field='o.mobile'/>
+                                        </td>
+                                        <td colspan='1' class="text-right">单据日期：
+                                            <span t-field='o.date'/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan='1' class='col-xs-1 text-center'>行号</td>
+                                        <td colspan='1' class='col-xs-3 text-center'>商品名称</td>
+                                        <td colspan='1' class='col-xs-1 text-center'>单位</td>
+                                        <td colspan='1' class='col-xs-1 text-center'>数量</td>
+                                        <td colspan='1' class='col-xs-1 text-center'>单价</td>
+                                        <td colspan='1' class='col-xs-2 text-center'>金额</td>
+                                        <td colspan='1' class='col-xs-3 text-center'>备注</td>
+                                    </tr>
+                                    <t t-set="subtotal_qty" t-value="0"/>
+                                    <t t-foreach='o.line_out_ids' t-as='l'>
+                                        <tr>
+                                            <td colspan='1' class='col-xs-1 text-center'>
+                                                <span t-esc='l_index+1'/>
+                                            </td>
+                                            <td colspan='1' class='col-xs-1 text-center'>
+                                                <span t-field='l.goods_id.name'/>
+                                            </td>
+                                            <td colspan='1' class='col-xs-1 text-center'>
+                                                <span t-field='l.uom_id.name'/>
+                                            </td>
+                                            <td colspan='1' class='col-xs-1 text-center'>
+                                                <span t-field='l.goods_qty'/>
+                                                <t t-set="subtotal_qty" t-value="subtotal_qty+l.goods_qty"/>
+                                            </td>
+                                            <td colspan='1' class='col-xs-1 text-center'>
+                                                <span t-field='l.price_taxed'/>
+                                            </td>
+                                            <td colspan='1' class='col-xs-1 text-center'>
+                                                <span t-field='l.subtotal'/>
+                                            </td>
+                                            <td colspan='1' class='col-xs-1 text-center'>
+                                                <span t-field='l.note'/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr>
+                                        <td colspan='3'>
+                                        </td>
+                                        <td colspan='1'>
+                                            <span t-esc='subtotal_qty'/>
+                                        </td>
+                                        <td colspan='1'>
+                                        </td>
+                                        <td colspan='1'>
+                                        </td>
+                                        <td colspan='1'>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-left' colspan='2'>
+                                            <span>合计数量:</span>
+                                            <span t-esc='subtotal_qty'/>
+                                        </td>
+                                        <td class='text-left' colspan='3'>
+                                            <span>合计金额:</span>
+                                            <span t-field='o.amount'/>
+                                        </td>
+                                        <td class='text-left' colspan='2'>
+                                            <span>金额大写:</span>
+                                            <span t-esc='rmb_upper(o.amount)'/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan='7' class='text-left'>
+                                            <span>购货单位签字:</span>
+                                            <span><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]]></span>
+                                            <span>承运:</span>
+                                            <span><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]]></span>
+                                            <span>审核:</span>
+                                            <span><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]]></span>
+                                            <span>发货:</span>
+                                            <span><![CDATA[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]]></span>
+                                            <span>制单:</span>
+                                            <span t-field='o.create_uid.name'/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan='7' class='text-left'>
+                                            <span>以上货物标准是双方认可标准，购或单位对标的物的质量与价格检查审核认可盖章或签字生效。本单据视同购销合同。</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>

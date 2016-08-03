@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <report
+                id="report_return_form"
+                model="sell.delivery"
+                string="退货单"
+                name="print_reports.report_return_view"
+                file="print_reports.report_return_form"
+                report_type="qweb-pdf">
+        </report>
+        <template id='report_return_view'>
+            <t t-call='report.html_container'>
+                <t t-set="data_report_margin_top" t-value="12"/>
+                <t t-set="data_report_header_spacing" t-value="9"/>
+                <t t-set="data_report_dpi" t-value="110"/>
+                <t t-set="data-report_format" t-value='A4'/>
+                <t t-foreach='docs' t-as='o'>
+                    <!--<t t-call="report.external_layout">-->
+                    <t t-call="report.internal_layout">
+                        <div class='page'>
+                            <div class='row' >
+                                <div class='oe_structure'/>
+                                <div class='row'>
+                                    <h1 class='text-center'>
+                                        销售退货单
+                                    </h1>
+                                </div>
+
+                            </div>
+                            <style>
+                                table.col-xs-12 td{border: 1px solid black}
+
+                            </style>
+                            <table class="col-xs-12">
+                                <tbody class='text-center'>
+                                    <tr>
+                                        <td colspan='3' class="text-left">单据日期：
+                                            <span t-field='o.date'/>
+                                        </td>
+                                        <td colspan='5' class="text-left">单据编号：
+                                            <span t-field='o.name'/>
+                                        </td>
+                                        <td colspan='3' class="text-left">制单人：
+                                            <span t-field='o.create_uid.name'/>
+                                        </td>
+
+
+                                    </tr>
+                                    <tr>
+                                        <td colspan='3' class="text-left">往来单位：
+                                            <span t-field='o.partner_id.name'/>
+                                        </td>
+                                        <td colspan='5' class="text-left">账号/税号：
+                                            <span t-field='o.partner_id.bank_name'/>
+                                            <span t-field='o.partner_id.bank_num'/>/
+                                            <span t-field='o.partner_id.tax_num'/>
+
+                                        </td>
+                                        <td colspan='3' class="text-left">经手人：
+                                            <span t-field='o.approve_uid.name'/>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td colspan='8' class="text-left">单据摘要：
+                                            <span t-field='o.note'/>
+                                        </td>
+
+                                        <td colspan='3' class="text-left">库房：
+                                            <span t-field='o.warehouse_dest_id.name'/>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td colspan='1' class='text-center col-xs-1'>行号</td>
+                                        <td colspan='1' class='text-center col-xs-1'>商品编码</td>
+                                        <td colspan='1' class='text-center col-xs-1'>商品名称</td>
+                                        <td colspan='1' class='text-center col-xs-1'>单位</td>
+                                        <td colspan='1' class='text-center col-xs-1'>数量</td>
+                                        <td colspan='1' class='text-center col-xs-1'>单价</td>
+                                        <td colspan='1' class='text-center col-xs-1'>金额</td>
+                                        <td colspan='1' class='text-center col-xs-1'>折扣</td>
+                                        <td colspan='1' class='text-center col-xs-1'>折后金额</td>
+                                        <td colspan='1' class='text-center col-xs-1'>税率</td>
+                                        <td colspan='1' class='text-center col-xs-1'>含税金额</td>
+                                    </tr>
+                                    <t t-set="page_subtotal_qty" t-value="0"/>
+                                    <t t-set="page_subtotal_amount" t-value="0"/>
+                                    <t t-set="page_subtotal_subtotal" t-value="0"/>
+                                    <t t-set="page_subtotal_discount" t-value="0"/>
+                                    <t t-foreach='o.line_in_ids' t-as='l'>
+                                        <tr>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-esc='l_index+1'/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.goods_id'/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.goods_id.name'/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.uom_id.name'/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.goods_qty'/>
+                                                <t t-set="page_subtotal_qty" t-value="page_subtotal_qty+l.goods_qty"/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.price'/>
+                                            </td>
+
+                                            <td colspan='1' class='text-center'>
+                                                <span t-esc='l.price*l.goods_qty'/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.discount_amount'/>
+                                                <t t-set="page_subtotal_discount"
+                                                   t-value="page_subtotal_discount+l.discount_amount"/>
+                                            </td>
+
+                                            <td colspan='1' class='text-center'>
+                                                <span t-esc='round(l.amount,2)'/>
+                                                <t t-set="page_subtotal_amount"
+                                                   t-value="page_subtotal_amount+l.amount"/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.tax_rate'/>
+                                            </td>
+                                            <td colspan='1' class='text-center'>
+                                                <span t-field='l.subtotal'/>
+                                                <t t-set="page_subtotal_subtotal"
+                                                   t-value="page_subtotal_subtotal+l.subtotal"/>
+                                            </td>
+
+                                        </tr>
+                                    </t>
+                                    <tr>
+                                        <td colspan='4' class='col-xs-1 text-left'>页小计：</td>
+                                        <td colspan='1'>
+                                            <span t-esc='page_subtotal_qty'/>
+                                        </td>
+                                        <td colspan='3'>
+                                        </td>
+                                        <td colspan='1'>
+                                            <span t-esc='round(page_subtotal_amount,2)'/>
+                                        </td>
+                                        <td colspan='1'>
+                                        </td>
+                                        <td colspan='1'>
+                                            <span t-esc='page_subtotal_subtotal'/>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td colspan='3'>
+                                        </td>
+                                        <td colspan='1'>
+                                            <span t-esc='subtotal_qty'/>
+                                        </td>
+                                        <td colspan='1'>
+                                        </td>
+                                        <td colspan='1'>
+                                        </td>
+                                        <td colspan='1'>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class='text-left' colspan='3'>
+                                            <span>合计数量:</span>
+                                            <span t-esc='page_subtotal_qty'/>
+                                        </td>
+                                        <td class='text-left' colspan='3'>
+                                            <span>成交金额:</span>
+                                            <span t-esc='page_subtotal_subtotal'/>
+                                        </td>
+                                        <td class='text-left' colspan='5'>
+                                            <span>整单折让:</span>
+                                            <span t-esc='page_subtotal_discount'/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-left' colspan='3'>
+                                            <span>账户名称:</span>
+                                            <span t-esc='o.partner_id.name'/>
+                                        </td>
+                                        <td class='text-left' colspan='3'>
+                                            <span>账户金额:</span>
+
+                                        </td>
+                                        <td class='text-left' colspan='5'>
+                                            <span>金额大写:</span>
+                                            <span t-esc='rmb_upper(page_subtotal_subtotal)'/>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>
